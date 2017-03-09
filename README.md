@@ -1,3 +1,3 @@
 # piano
-Simple piano keyboard wrttien in Gambas
+Simple piano keyboard written in Gambas
 
