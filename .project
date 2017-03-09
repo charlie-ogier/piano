@@ -2,11 +2,14 @@
 # Compiled with Gambas 3.9.2
 Title=Piano
 Startup=FMain
-Version=0.0.1
+Version=0.1.0
 Component=gb.image
 Component=gb.gui
 Component=gb.form
 Component=gb.sdl2.audio
+Description="A simple piano keyboard"
+Authors="Charlie Ogier 2017"
 TabSize=2
 Language=en_US
+Vendor=cogier
 Packager=1
