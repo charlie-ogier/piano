@@ -1,9 +1,9 @@
 # Gambas Form File 3.0
 
 { Form Form
-  MoveScaled(0,0,69,41)
+  MoveScaled(0,0,109,41)
   { HBox1 HBox
-    MoveScaled(3,3,64,7)
+    MoveScaled(3,3,100,7)
     Expand = True
     { Panel1 VBox
       MoveScaled(0,0,26,7)
@@ -12,11 +12,26 @@
         MoveScaled(0,0,26,3)
         Text = ("Mouse over to play")
       }
-      { RadioButtonEnter RadioButton ClickOrOver
-        Name = "RadioButtonEnter"
+      { RadioButtonClick RadioButton ClickOrOver
+        Name = "RadioButtonClick"
         MoveScaled(0,3,25,3)
         Text = ("Click key to play")
       }
     }
+    { Panel2 Panel
+      MoveScaled(45,2,9,3)
+      Expand = True
+    }
+    { Panel3 Panel
+      MoveScaled(68,1,20,5)
+      { ButtonOde Button
+        MoveScaled(0,0,19,4)
+        Text = Shortcut(("Ode to joy"), "O")
+      }
+    }
+  }
+  { Timer1 #Timer
+    #MoveScaled(72,15)
+    Delay = 250
   }
 }

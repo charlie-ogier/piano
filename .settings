@@ -5,8 +5,9 @@ FMain=[91]
 Count=0
 
 [DebugWindow]
-Count=1
+Count=2
 DebugWindow[1]="siNotes"
+DebugWindow[2]="sToPlay"
 
 [DebugWindow/File]
 Geometry=[0,14,224,280]
@@ -20,13 +21,16 @@ Geometry=[1091,-8,624,931]
 [DebugWindow/sLS]
 Geometry=[1308,-8,422,1000]
 
+[DebugWindow/sToPlay]
+Geometry=[1582,-8,224,985]
+
 [DebugWindow/siNotes]
-Geometry=[1410,8,418,950]
+Geometry=[1380,27,418,950]
 
 [OpenFile]
 Active=2
 File[1]=".src/FMain.form"
-File[2]=".src/FMain.class:0.192"
+File[2]=".src/FMain.class:0.0"
 Count=2
 
 [Watches]

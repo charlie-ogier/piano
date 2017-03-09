@@ -1,192 +1,217 @@
 ' Gambas class file
 
-bClickOrOver As Boolean
+bClickOrOver As Boolean                                                       'Controls the user choice to 'Click' to play or 'Mouse over' to play
+bNotReadyYet As Boolean                                                       'To stop the keyboard working if something else is playing
 
 Public Sub Form_Open()
-Dim sTemp As String
+Dim sTemp As String                                                           'Temp string
 
-If Not Exist(User.Home &/ "PianoNotes") Then
-  Mkdir User.Home &/ "PianoNotes"
-  For Each sTemp In Dir("../Piano/", "*.wav").Sort()
-    Copy "../Piano/" &/ sTemp To User.Home &/ "PianoNotes" &/ sTemp
+If Not Exist(User.Home &/ "PianoNotes") Then                                  'Is there a place to store all the 'Notes' if not..
+  Mkdir User.Home &/ "PianoNotes"                                             'Create a place to store all the 'Notes'
+  For Each sTemp In Dir("../Piano/", "*.wav").Sort()                          'For each note  - all sorted
+    Copy "../Piano/" &/ sTemp To User.Home &/ "PianoNotes" &/ sTemp           'Copy to new folder
   Next
 Endif
 
-BuildPiano
-'playStuff
+Music.Volume = 75                                                             'Set the volume to 75% of max
+BuildPiano                                                                    'Build the piano keboard
+Timer1.Start                                                                  'Start the timer
 
 End
 
-Public Sub PianoKeys_Enter(Optional sTag As String)
+Public Sub Timer1_Timer()                                                     'Timer
 
-If bClickOrOver Then Return
-
-If Not sTag Then sTag = Last.tag
-
-Music.load(User.Home &/ "PianoNotes" &/ sTag & ".wav")
-Music.Play
+playStuff("4C2,3C2,2C2,1E2,1D2,1C8,\n")                                       'Send Intro string of notes to playStuff
+Timer1.Stop                                                                   'Stop the timer
 
 End
 
-Public Sub PianoKeys_MouseDown(Optional sTag As String)
+Public Sub PianoKeys_Enter()                                                  'If the mouse is moved over any of the piano keys.. 
 
-If Not bClickOrOver Then Return
+If bClickOrOver Then Return                                                   'If the user has choosen to 'click to play' then get out of here
+If bNotReadyYet Then Return                                                   'If something else is playing then get out of here
 
-If Not sTag Then sTag = Last.tag
+Music.load(User.Home &/ "PianoNotes" &/ Last.Tag & ".wav")                    'Load the correct note to play
+Music.Play                                                                    'Play the note
 
-Music.load(User.Home &/ "PianoNotes" &/ sTag & ".wav")
-Music.Play
+End
+
+Public Sub PianoKeys_MouseDown()                                              'If the mouse is clicked over the keyboard
+
+If Not bClickOrOver Then Return                                               'If the user has choosen to 'click to play' then get out of here
+If bNotReadyYet Then Return                                                   'If something else is playing then get out of here
+
+Music.load(User.Home &/ "PianoNotes" &/ Last.Tag & ".wav")                    'Load the correct note to play
+Music.Play                                                                    'Play the note
   
-  
 End
 
+Public Sub BuildPiano()                                                       'Routine to build the piano keyboard
+Dim sOctave As String[] = ["L0-", "L1-", "M0-", "H0-", "H1-"]                 'Octave names
+Dim sNote As String[] = ["A", "B", "C", "D", "E", "F", "G"]                   'Note names
+Dim hNewPanelWhite, hNewPanelBlack As Panel                                   'Panels for the keys
+Dim hHBox As HBox                                                             'HBox to put all the keys in
+Dim siCount, siCount1 As Short                                                'Counters
+Dim siTag As Short = 15                                                       'To create the 'key's' tag 
 
-Public Sub BuildPiano()
-Dim sOctave As String[] = ["L0-", "L1-", "M0-", "H0-", "H1-"]
-Dim sNote As String[] = ["A", "B", "C", "D", "E", "F", "G"]
-Dim hNewPanelWhite, hNewPanelBlack As Panel
-Dim hHBox As HBox
-Dim siCount, siCount1 As Short
-Dim siTag As Short = 15
-
-With Me
-  .Arrangement = Arrange.Vertical
-  .Background = Color.Background
-  .Height = 200
-  .Width = 775
-  .Padding = 5
+With Me                                                                       'Setup the Form 
+  .Arrangement = Arrange.Vertical                                             'Set the Arrangemant
+  .Background = Color.Background                                              'Set the Background
+  .Height = 200                                                               'Set the Height
+  .Width = 775                                                                'Set the Width
+  .Padding = 5                                                                'Set the Padding value
 End With
 
-hHBox = New HBox(Me)
-hHBox.name = "HBoxKeys"
-hHBox.Height = 112
+hHBox = New HBox(Me)                                                          'Create a new HBox on the Form
+hHBox.Height = 112                                                            'Set its height
 
-For siCount1 = 0 To 4
-  For siCount = 0 To 6
-    Inc siTag
-    hNewPanelWhite = New Panel(hHBox) As "PianoKeys"
-    With hNewPanelWhite
-      .Width = 21
-      .Height = 112
-      .Name = sOctave[siCount1] & sNote[siCount]
-      .Background = Color.White
-      .Border = Border.Plain
-      .Tag = siTag
+For siCount1 = 0 To 4                                                         'Loop for each of the 5 octaves
+  For siCount = 0 To 6                                                        'Loop for each of the 7 white keys in the octave
+    Inc siTag                                                                 'Increase the value of siTag
+    hNewPanelWhite = New Panel(hHBox) As "PianoKeys"                          'Create a new Panel (Grouyp name = "PianoKeys")
+    With hNewPanelWhite                                                       'With the new Panel
+      .Width = 21                                                             'Set the Width
+      .Height = 112                                                           'Set the Height
+      .Name = sOctave[siCount1] & sNote[siCount]                              'Give it a name based on the octave and note it will become
+      .Background = Color.White                                               'Make the key white
+      .Border = Border.Plain                                                  'Give it a plain border
+      .Tag = siTag                                                            'Give it a Tag (This tag is the value of the note that will be played. e.g. 17 will play '17.wav')
     End With
     
-    Select Case Right(hNewPanelWhite.Name, 1)
-      Case "C", "F"
-        hNewPanelBlack = New Panel(hNewPanelWhite) As "PianoKeys"
-        With hNewPanelBlack
-          .Name = sOctave[siCount1] & sNote[siCount] & "#"
-          .Tag = siTag + 1
-          .Width = 7
-          .Height = 63
-          .Background = Color.Black
-          .x &= 14
+    Select Case Right(hNewPanelWhite.Name, 1)                                 'Select what to do based on the 'Note' the last 'key' created is
+      Case "C", "F"                                                           'If it's C or F then
+        hNewPanelBlack = New Panel(hNewPanelWhite) As "PianoKeys"             'Add a new (Black) Panel inside the (White) Panel 
+        With hNewPanelBlack                                                   'With the new Black panel
+          .Name = sOctave[siCount1] & sNote[siCount] & "#"                    'Give it the same name as the White key but add '#'
+          .Tag = siTag + 1                                                    'Add a tag one value higher than the white key
+          .Width = 7                                                          'Set the width
+          .Height = 63                                                        'Set the height
+          .Background = Color.Black                                           'Set the colour
+          .x &= 14                                                            'Move it from top left of the white key by 14
         End With
-        Inc siTag
+        Inc siTag                                                             'Increase the Tag value
         
-      Case "D", "G", "A"
-        If siTag <> 16 Then
-          hNewPanelBlack = New Panel(hNewPanelWhite) As "PianoKeys"
-          With hNewPanelBlack
-            .Name = sOctave[siCount1] & sNote[siCount] & "#"
-            .Tag = siTag - 1
-            .Width = 7
-            .Height = 63
-            .Background = Color.Black
+      Case "D", "G", "A"                                                      'If it's D, G or A then
+        If siTag <> 16 Then                                                   'If it is not the first key then
+          hNewPanelBlack = New Panel(hNewPanelWhite) As "PianoKeys"           'Add a new (Black) Panel inside the (White) Panel 
+          With hNewPanelBlack                                                 'With the new Black panel
+            .Name = sOctave[siCount1] & sNote[siCount] & "#"                  'Give it the same name as the White key but add '#'
+            .Tag = siTag - 1                                                  'This is half a black key on the left of the White key so its value is 1 less that the present key value
+            .Width = 7                                                        'Set the width
+            .Height = 63                                                      'Set the height
+            .Background = Color.Black                                         'Set the colour
           End With
         End If
-        hNewPanelBlack = New Panel(hNewPanelWhite) As "PianoKeys"
-        With hNewPanelBlack
-          .Name = sOctave[siCount1] & sNote[siCount] & "#"
-          .Tag = siTag + 1
-          .Width = 7
-          .Height = 63
-          .Background = Color.Black
-          .x &= 14
+        hNewPanelBlack = New Panel(hNewPanelWhite) As "PianoKeys"             'Add a new (Black) Panel inside the (White) Panel 
+        With hNewPanelBlack                                                   'With the new Black panel
+          .Name = sOctave[siCount1] & sNote[siCount] & "#"                    'Give it the same name as the White key but add '#'
+          .Tag = siTag + 1                                                    'This is half a black key on the right of the White key so its value is 1 greater that the present key value
+          .Width = 7                                                          'Set the Width
+          .Height = 63                                                        'Set the Height
+          .Background = Color.Black                                           'Set the colour
+          .x &= 14                                                            'Move it from top left of the white key by 14
         End With
-        Inc siTag
+        Inc siTag                                                             'Increase the Tag value
         
-      Case "E", "B"
-        hNewPanelBlack = New Panel(hNewPanelWhite) As "PianoKeys"
-        With hNewPanelBlack
-          .Name = sOctave[siCount1] & sNote[siCount] & "#"
-          .Tag = siTag - 1
-          .Width = 7
-          .Height = 63
-          .Background = Color.Black
+      Case "E", "B"                                                           'If it's E or B then
+        hNewPanelBlack = New Panel(hNewPanelWhite) As "PianoKeys"             'Add a new (Black) Panel inside the (White) Panel 
+        With hNewPanelBlack                                                   'With the new Black panel
+          .Name = sOctave[siCount1] & sNote[siCount] & "#"                    'Give it the same name as the White key but add '#'
+          .Tag = siTag - 1                                                    'This is half a black key on the left of the White key so its value is 1 less that the present key value
+          .Width = 7                                                          'Set the Width
+          .Height = 63                                                        'Set the Height
+          .Background = Color.Black                                           'Set the colour
         End With
         
-      Case "F"
-        hNewPanelBlack = New Panel(hNewPanelWhite) As "PianoKeys"
-        With hNewPanelBlack
-          .Name = sOctave[siCount1] & sNote[siCount] & "#"
-          .Tag = siTag + 1
-          .Width = 7
-          .Height = 63
-          .Background = Color.Black
-          .x &= 14
+      Case "F"                                                                'If it's F then
+        hNewPanelBlack = New Panel(hNewPanelWhite) As "PianoKeys"             'Add a new (Black) Panel inside the (White) Panel 
+        With hNewPanelBlack                                                   'With the new Black panel
+          .Name = sOctave[siCount1] & sNote[siCount] & "#"                    'Give it the same name as the White key but add '#'
+          .Tag = siTag + 1                                                    'This is half a black key on the right of the White key so its value is 1 greater that the present key value
+          .Width = 7                                                          'Set the Width
+          .Height = 63                                                        'Set the Height
+          .Background = Color.Black                                           'Set the colour
+          .x &= 14                                                            'Move it from top left of the white key by 14
         End With
-        Inc siTag
+        Inc siTag                                                             'Increase the Tag value
     End Select
   Next
 Next
 
-hNewPanelWhite = New Panel(hHBox) As "PianoKeys"
-  With hNewPanelWhite
-    .Width = 21
-    .Height = 112
-    .Name = "H2-A"
-    .Background = Color.White
-    .Border = Border.Plain
-    .Tag = 76
+hNewPanelWhite = New Panel(hHBox) As "PianoKeys"                              'This is to create the last 'A' key on the keyboard
+  With hNewPanelWhite                                                         'With the new Panel
+    .Width = 21                                                               'Set the Width
+    .Height = 112                                                             'Set the height
+    .Name = "H2-A"                                                            'Give it a name
+    .Background = Color.White                                                 'Set the colour
+    .Border = Border.Plain                                                    'Set the border
+    .Tag = 76                                                                 'Give it a Tag
   End With
 
-hNewPanelBlack = New Panel(hNewPanelWhite) As "PianoKeys"
-  With hNewPanelBlack
-    .Tag = 75
-    .Width = 7
-    .Height = 63
-    .Background = Color.Black
+hNewPanelBlack = New Panel(hNewPanelWhite) As "PianoKeys"                     'Create the last black key 'G#' on the keyboard
+  With hNewPanelBlack                                                         'With the new Black panel
+    .Tag = 75                                                                 'Set the Tag
+    .Width = 7                                                                'Set the Width
+    .Height = 63                                                              'Set the Height
+    .Background = Color.Black                                                 'Set the colour
  End With
 
 End
 
-Public Sub playStuff()
-Dim sToPlay As String[] = ["4B4", "4B4", "4C4", "4D4", "4D4", "4C4", "4B4", "4A4", "3G4", "3G4", "4A4", "4B4", "4B6", "4A2", "4A8", "4B4", "4B4", "4C4", "4D4", "4D4", "4C4", "4B4", "4A4", "3G4", "3G4", "4A4", "4B4", "4A6", "3G2", "3G8"]
-Dim siOctave As Short[] = [15, 27, 39, 51, 63]
-Dim sNote As String = "A#BC#D#EF#G#"
-Dim siNotes As New String[12, 5]
-Dim siCount0, siCount1 As Short
-Dim siWait, siOctaveToPlay, siNoteToPlay As Short
+Public Sub PlayStuff(Optional sFile As String)                                'To play prepared tunes
+Dim sToPlay As New String[]                                                   'String used to play the notes
+Dim siOctave As Short[] = [15, 27, 39, 51, 63, 75]                            'Octave value
+Dim sNote As String = "A#BC#D#EF#G#"                                          'Note control
+Dim sTemp1, sTemp2 As String                                                  'Temp strings
+Dim siNotes As New String[12, 5]                                              'Array to store the notes to play
+Dim siCount0, siCount1 As Short                                               'Counters
+Dim siWait, siOctaveToPlay, siNoteToPlay As Short                             'Length until next note, Which octave to use, Which note to play
+Dim bVolTrigger As Boolean                                                    'A control for the volume that is set at 75% but the first note in the bar is played ay 100%
 
-For siCount1 = 0 To 4
-  For siCount0 = 0 To 11
-    siNotes[siCount0, siCount1] = siOctave[siCount1] + siCount0
+bNotReadyYet = True                                                           'Ignore all other inputs
+
+If sFile = "" Then sFile = File.Load("Ode_to_joy.csv")                        'Load the file 'Ode_to_joy.csv"
+
+For Each sTemp1 In Split(sFile, gb.NewLine)                                   'Split the string by 'NewLines'
+  For Each sTemp2 In Split(sTemp1)                                            'Split the result by commas
+    If Trim(sTemp2) = "" Then Continue                                        'If there is nothing there jump to the next iteration of the loop
+    sToPlay.Add(Trim(sTemp2))                                                 'Add the 'note' to the Array
+  Next
+  sToPlay.Add("|")                                                            'Add an end of bar token
+Next
+
+For siCount1 = 0 To 4                                                         'Loop to create the siNotes array
+  For siCount0 = 0 To 11                                                      'Loop to create the siNotes array
+    siNotes[siCount0, siCount1] = siOctave[siCount1] + siCount0               'Creates the array list
   Next
 Next
 
-For siCount0 = 0 To sToPlay.Max
-  siOctaveToPlay = Left(sToPlay[siCount0], 1)
-  siNoteToPlay = InStr(sNote, Mid(sToPlay[siCount0], 2, 1))
-  siWait = Right(sToPlay[siCount0], 1)
-  Print "siNoteToPlay  " & siNoteToPlay 
-  Print "siOctaveToPlay " & siOctaveToPlay
-  Print "siWait " & siWait
-  Print "Data " & Str(siNotes[siNoteToPlay, siOctaveToPlay])
-  Print
-  Music.load(User.Home &/ "PianoNotes" &/ Str(siNotes[siNoteToPlay, siOctaveToPlay]) & ".wav")
-  Music.Play
-  Wait siWait / 9
+For siCount0 = 0 To sToPlay.Max                                               'Loop to play the notes
+  Music.Volume = 75                                                           'Set the volume
+  If sToPlay[siCount0] = "|" Then                                             'If its the end of the bar..
+    Music.Volume = 100                                                        'Raise the volume
+    Continue                                                                  'Jump to the next iteration of the loop
+  End If
+  siOctaveToPlay = Left(sToPlay[siCount0], 1)                                 'Set the octave to play (4A4 = 4th Octave)  siOctaveToPlay = 4
+  siNoteToPlay = InStr(sNote, Mid(sToPlay[siCount0], 2, 1))                   'Set the note to play   (4A4 = "A" to play) siNoteToPlay = 0
+  siWait = Right(sToPlay[siCount0], 1)                                        'Set the delay          (4A4 = a crotchet i.e. Hold for 4 semi-quavers)
+  Music.load(User.Home &/ "PianoNotes" &/ Str(siNotes[siNoteToPlay, siOctaveToPlay]) & ".wav") 'Load the correct note to play (4A4 would siNotes[0,4]= "63.wav")
+  Music.Play                                                                  'Play the music
+  Wait siWait / 9                                                             'Wait the length of the note
 Next
+
+bNotReadyYet = False                                                          'Allow the keyboard to work
 
 End
 
+Public Sub ClickOrOver_Click()                                                'If the RadioButtons are clicked..
 
-Public Sub ClickOrOver_Click()
+If RadioButtonClick.value Then bClickOrOver = True Else bClickOrOver = False  'If the 'Click to play' button is selected then bClickOrOver = True, otherwise it is False
 
-If RadioButtonEnter.value Then bClickOrOver = True Else bClickOrOver = False
+End
+
+Public Sub ButtonOde_Click()                                                  'If the Ode to joy Button is clicked
+
+PlayStuff                                                                     'Run the PlayStuff routine
 
 End
