@@ -1,0 +1,192 @@
+' Gambas class file
+
+bClickOrOver As Boolean
+
+Public Sub Form_Open()
+Dim sTemp As String
+
+If Not Exist(User.Home &/ "PianoNotes") Then
+  Mkdir User.Home &/ "PianoNotes"
+  For Each sTemp In Dir("../Piano/", "*.wav").Sort()
+    Copy "../Piano/" &/ sTemp To User.Home &/ "PianoNotes" &/ sTemp
+  Next
+Endif
+
+BuildPiano
+'playStuff
+
+End
+
+Public Sub PianoKeys_Enter(Optional sTag As String)
+
+If bClickOrOver Then Return
+
+If Not sTag Then sTag = Last.tag
+
+Music.load(User.Home &/ "PianoNotes" &/ sTag & ".wav")
+Music.Play
+
+End
+
+Public Sub PianoKeys_MouseDown(Optional sTag As String)
+
+If Not bClickOrOver Then Return
+
+If Not sTag Then sTag = Last.tag
+
+Music.load(User.Home &/ "PianoNotes" &/ sTag & ".wav")
+Music.Play
+  
+  
+End
+
+
+Public Sub BuildPiano()
+Dim sOctave As String[] = ["L0-", "L1-", "M0-", "H0-", "H1-"]
+Dim sNote As String[] = ["A", "B", "C", "D", "E", "F", "G"]
+Dim hNewPanelWhite, hNewPanelBlack As Panel
+Dim hHBox As HBox
+Dim siCount, siCount1 As Short
+Dim siTag As Short = 15
+
+With Me
+  .Arrangement = Arrange.Vertical
+  .Background = Color.Background
+  .Height = 200
+  .Width = 775
+  .Padding = 5
+End With
+
+hHBox = New HBox(Me)
+hHBox.name = "HBoxKeys"
+hHBox.Height = 112
+
+For siCount1 = 0 To 4
+  For siCount = 0 To 6
+    Inc siTag
+    hNewPanelWhite = New Panel(hHBox) As "PianoKeys"
+    With hNewPanelWhite
+      .Width = 21
+      .Height = 112
+      .Name = sOctave[siCount1] & sNote[siCount]
+      .Background = Color.White
+      .Border = Border.Plain
+      .Tag = siTag
+    End With
+    
+    Select Case Right(hNewPanelWhite.Name, 1)
+      Case "C", "F"
+        hNewPanelBlack = New Panel(hNewPanelWhite) As "PianoKeys"
+        With hNewPanelBlack
+          .Name = sOctave[siCount1] & sNote[siCount] & "#"
+          .Tag = siTag + 1
+          .Width = 7
+          .Height = 63
+          .Background = Color.Black
+          .x &= 14
+        End With
+        Inc siTag
+        
+      Case "D", "G", "A"
+        If siTag <> 16 Then
+          hNewPanelBlack = New Panel(hNewPanelWhite) As "PianoKeys"
+          With hNewPanelBlack
+            .Name = sOctave[siCount1] & sNote[siCount] & "#"
+            .Tag = siTag - 1
+            .Width = 7
+            .Height = 63
+            .Background = Color.Black
+          End With
+        End If
+        hNewPanelBlack = New Panel(hNewPanelWhite) As "PianoKeys"
+        With hNewPanelBlack
+          .Name = sOctave[siCount1] & sNote[siCount] & "#"
+          .Tag = siTag + 1
+          .Width = 7
+          .Height = 63
+          .Background = Color.Black
+          .x &= 14
+        End With
+        Inc siTag
+        
+      Case "E", "B"
+        hNewPanelBlack = New Panel(hNewPanelWhite) As "PianoKeys"
+        With hNewPanelBlack
+          .Name = sOctave[siCount1] & sNote[siCount] & "#"
+          .Tag = siTag - 1
+          .Width = 7
+          .Height = 63
+          .Background = Color.Black
+        End With
+        
+      Case "F"
+        hNewPanelBlack = New Panel(hNewPanelWhite) As "PianoKeys"
+        With hNewPanelBlack
+          .Name = sOctave[siCount1] & sNote[siCount] & "#"
+          .Tag = siTag + 1
+          .Width = 7
+          .Height = 63
+          .Background = Color.Black
+          .x &= 14
+        End With
+        Inc siTag
+    End Select
+  Next
+Next
+
+hNewPanelWhite = New Panel(hHBox) As "PianoKeys"
+  With hNewPanelWhite
+    .Width = 21
+    .Height = 112
+    .Name = "H2-A"
+    .Background = Color.White
+    .Border = Border.Plain
+    .Tag = 76
+  End With
+
+hNewPanelBlack = New Panel(hNewPanelWhite) As "PianoKeys"
+  With hNewPanelBlack
+    .Tag = 75
+    .Width = 7
+    .Height = 63
+    .Background = Color.Black
+ End With
+
+End
+
+Public Sub playStuff()
+Dim sToPlay As String[] = ["4B4", "4B4", "4C4", "4D4", "4D4", "4C4", "4B4", "4A4", "3G4", "3G4", "4A4", "4B4", "4B6", "4A2", "4A8", "4B4", "4B4", "4C4", "4D4", "4D4", "4C4", "4B4", "4A4", "3G4", "3G4", "4A4", "4B4", "4A6", "3G2", "3G8"]
+Dim siOctave As Short[] = [15, 27, 39, 51, 63]
+Dim sNote As String = "A#BC#D#EF#G#"
+Dim siNotes As New String[12, 5]
+Dim siCount0, siCount1 As Short
+Dim siWait, siOctaveToPlay, siNoteToPlay As Short
+
+For siCount1 = 0 To 4
+  For siCount0 = 0 To 11
+    siNotes[siCount0, siCount1] = siOctave[siCount1] + siCount0
+  Next
+Next
+
+For siCount0 = 0 To sToPlay.Max
+  siOctaveToPlay = Left(sToPlay[siCount0], 1)
+  siNoteToPlay = InStr(sNote, Mid(sToPlay[siCount0], 2, 1))
+  siWait = Right(sToPlay[siCount0], 1)
+  Print "siNoteToPlay  " & siNoteToPlay 
+  Print "siOctaveToPlay " & siOctaveToPlay
+  Print "siWait " & siWait
+  Print "Data " & Str(siNotes[siNoteToPlay, siOctaveToPlay])
+  Print
+  Music.load(User.Home &/ "PianoNotes" &/ Str(siNotes[siNoteToPlay, siOctaveToPlay]) & ".wav")
+  Music.Play
+  Wait siWait / 9
+Next
+
+End
+
+
+Public Sub ClickOrOver_Click()
+
+If RadioButtonEnter.value Then bClickOrOver = True Else bClickOrOver = False
+
+End

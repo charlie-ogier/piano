@@ -1,0 +1,22 @@
+# Gambas Form File 3.0
+
+{ Form Form
+  MoveScaled(0,0,69,41)
+  { HBox1 HBox
+    MoveScaled(3,3,64,7)
+    Expand = True
+    { Panel1 VBox
+      MoveScaled(0,0,26,7)
+      { RadioButtonMouseDown RadioButton ClickOrOver
+        Name = "RadioButtonMouseDown"
+        MoveScaled(0,0,26,3)
+        Text = ("Mouse over to play")
+      }
+      { RadioButtonEnter RadioButton ClickOrOver
+        Name = "RadioButtonEnter"
+        MoveScaled(0,3,25,3)
+        Text = ("Click key to play")
+      }
+    }
+  }
+}
