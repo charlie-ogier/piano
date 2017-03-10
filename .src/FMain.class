@@ -3,7 +3,7 @@
 bClickOrOver As Boolean                                                       'Controls the user choice to 'Click' to play or 'Mouse over' to play
 bNotReadyYet As Boolean                                                       'To stop the keyboard working if something else is playing
 
-Public Sub Form_Open()
+Public Sub Form_Show()
 Dim sTemp As String                                                           'Temp string
 
 If Not Exist(User.Home &/ "PianoNotes") Then                                  'Is there a place to store all the 'Notes' if not..
@@ -14,15 +14,9 @@ If Not Exist(User.Home &/ "PianoNotes") Then                                  'I
 Endif
 
 Music.Volume = 75                                                             'Set the volume to 75% of max
-BuildPiano                                                                    'Build the piano keboard
-Timer1.Start                                                                  'Start the timer
-
-End
-
-Public Sub Timer1_Timer()                                                     'Timer
+BuildPiano                                                                    'Build the piano keyboard
 
 playStuff("4C2,3C2,2C2,1E2,1D2,1C8,\n")                                       'Send Intro string of notes to playStuff
-Timer1.Stop                                                                   'Stop the timer
 
 End
 
@@ -32,6 +26,7 @@ If bClickOrOver Then Return                                                   'I
 If bNotReadyYet Then Return                                                   'If something else is playing then get out of here
 
 Music.load(User.Home &/ "PianoNotes" &/ Last.Tag & ".wav")                    'Load the correct note to play
+Label1.Text = Last.Tag & ".wav"
 Music.Play                                                                    'Play the note
 
 End

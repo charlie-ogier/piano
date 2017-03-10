@@ -18,6 +18,9 @@
         Text = ("Click key to play")
       }
     }
+    { Label1 Label
+      MoveScaled(27,2,13,4)
+    }
     { Panel2 Panel
       MoveScaled(45,2,9,3)
       Expand = True

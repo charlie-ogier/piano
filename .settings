@@ -30,7 +30,7 @@ Geometry=[1380,27,418,950]
 [OpenFile]
 Active=2
 File[1]=".src/FMain.form"
-File[2]=".src/FMain.class:0.0"
+File[2]=".src/FMain.class:0.4"
 Count=2
 
 [Watches]
