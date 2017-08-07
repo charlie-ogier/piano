@@ -25,12 +25,12 @@ Geometry=[1308,-8,422,1000]
 Geometry=[1582,-8,224,985]
 
 [DebugWindow/siNotes]
-Geometry=[1380,27,418,950]
+Geometry=[1252,355,418,950]
 
 [OpenFile]
 Active=2
 File[1]=".src/FMain.form"
-File[2]=".src/FMain.class:0.4"
+File[2]=".src/FMain.class:51.10"
 Count=2
 
 [Watches]

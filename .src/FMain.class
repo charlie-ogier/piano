@@ -6,17 +6,18 @@ bNotReadyYet As Boolean                                                       'T
 Public Sub Form_Show()
 Dim sTemp As String                                                           'Temp string
 
-If Not Exist(User.Home &/ "PianoNotes") Then                                  'Is there a place to store all the 'Notes' if not..
-  Mkdir User.Home &/ "PianoNotes"                                             'Create a place to store all the 'Notes'
-  For Each sTemp In Dir("../Piano/", "*.wav").Sort()                          'For each note  - all sorted
-    Copy "../Piano/" &/ sTemp To User.Home &/ "PianoNotes" &/ sTemp           'Copy to new folder
-  Next
-Endif
+For Each sTemp In Dir("../Piano/", "*.wav").Sort()                            'For each note  - all sorted
+  If Not Exist("/tmp" &/ sTemp) Then                                          'If it deos not exist then
+    Copy "../Piano" &/ sTemp To "/tmp" &/ sTemp                               'Copy to /tmp folder
+  End If
+Next
 
 Music.Volume = 75                                                             'Set the volume to 75% of max
 BuildPiano                                                                    'Build the piano keyboard
 
-playStuff("4C2,3C2,2C2,1E2,1D2,1C8,\n")                                       'Send Intro string of notes to playStuff
+PlayStuff("3C4,3E4,3G4,4C4,2C8", 20)                                          'Send Intro string of notes to playStuff
+PlayStuff("4C2,3C2,2C2,1E2,1D2,1C8,\n", 9) 
+PlayStuff("4C#2, 4C#4, 4B2, 4B2, 4A6, \n, 4C#2, 4C#2, 4B2, 3F#2, 4A8,\n,4C#2, 4C#2, 4E2, 4C#2, 4F#2, 4E2, 4C#2, 4A4,4B4, 4C#10", 5)
 
 End
 
@@ -153,7 +154,7 @@ hNewPanelBlack = New Panel(hNewPanelWhite) As "PianoKeys"                     'C
 
 End
 
-Public Sub PlayStuff(Optional sFile As String)                                'To play prepared tunes
+Public Sub PlayStuff(Optional sFile As String, Optional siDelay As Short)     'To play prepared tunes
 Dim sToPlay As New String[]                                                   'String used to play the notes
 Dim siOctave As Short[] = [15, 27, 39, 51, 63, 75]                            'Octave value
 Dim sNote As String = "A#BC#D#EF#G#"                                          'Note control
@@ -165,7 +166,10 @@ Dim bVolTrigger As Boolean                                                    'A
 
 bNotReadyYet = True                                                           'Ignore all other inputs
 
-If sFile = "" Then sFile = File.Load("Ode_to_joy.csv")                        'Load the file 'Ode_to_joy.csv"
+If sFile = "" Then 
+  sFile = File.Load("Ode_to_joy.csv")                                         'Load the file 'Ode_to_joy.csv"
+  siDelay = 9
+End If
 
 For Each sTemp1 In Split(sFile, gb.NewLine)                                   'Split the string by 'NewLines'
   For Each sTemp2 In Split(sTemp1)                                            'Split the result by commas
@@ -189,13 +193,18 @@ For siCount0 = 0 To sToPlay.Max                                               'L
   End If
   siOctaveToPlay = Left(sToPlay[siCount0], 1)                                 'Set the octave to play (4A4 = 4th Octave)  siOctaveToPlay = 4
   siNoteToPlay = InStr(sNote, Mid(sToPlay[siCount0], 2, 1))                   'Set the note to play   (4A4 = "A" to play) siNoteToPlay = 0
+  If InStr(sToPlay[siCount0], "#") Then Inc siNoteToPlay
   siWait = Right(sToPlay[siCount0], 1)                                        'Set the delay          (4A4 = a crotchet i.e. Hold for 4 semi-quavers)
+
+  Label1.text = Str(siNotes[siNoteToPlay, siOctaveToPlay]) & ".wav"
+
   Music.load(User.Home &/ "PianoNotes" &/ Str(siNotes[siNoteToPlay, siOctaveToPlay]) & ".wav") 'Load the correct note to play (4A4 would siNotes[0,4]= "63.wav")
   Music.Play                                                                  'Play the music
-  Wait siWait / 9                                                             'Wait the length of the note
+  Wait siWait / siDelay                                                       'Wait the length of the note
 Next
 
 bNotReadyYet = False                                                          'Allow the keyboard to work
+Label1.text = ""
 
 End
 
